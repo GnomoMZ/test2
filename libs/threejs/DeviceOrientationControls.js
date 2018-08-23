@@ -61,7 +61,7 @@ THREE.DeviceOrientationControls = function(object) {
             }
 
             if (event.data.alpha !== undefined) {
-//                onDeviceOrientationChangeEvent(event.data);
+                onDeviceOrientationChangeEvent(event.data);
             }
         });
 
