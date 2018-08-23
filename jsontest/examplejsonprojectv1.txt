@@ -1,0 +1,227 @@
+{
+    "status": 1,
+    "uid": "21",
+    "nid": "1673",
+    "info": {
+        "name": "KANSEMBATCHSTRASESEES 221, ZURICH",
+        "street": "Urquiza",
+        "street_number": "1280",
+        "district": "Entre Rios",
+        "postalcode": "3100",
+        "city": "Parana",
+        "country": "Argentina",
+        "description": "descripcion con detalles, si cuantos detalles, totalmente no escribiendo para llenar espacio y probar que anda bien la estructura en la gui. Y ya que estamos escribimos un poco mas, porque Rindfleischetikettierungsüberwachungsaufgabenübertragungsgesetz bueno, hay que llenar la seccion y con palabras queda mas fiel que si escribo fafduifheaiuwhfaiew, lo cual tiene sentido si uno lo piensa. Rindfleischetikettierungsüberwachungsaufgabenübertragungsgesetz",
+        "contact_name": "pedro",
+        "contact_lastname": "garcia",
+        "contact_cel": "154789995",
+        "contact_tel": "154789995",
+        "contact_email": "pacunia@interactive-3d.com",
+        "contact_website": "http://pagina.com",
+        "contact_company": "pepe inc.",
+        "contact_time": "8hs a 16hs",
+        "lat": "",
+        "long": "",
+        "starter_ambientid": 1
+    },
+    "ambients": [
+        {
+            "name": "Sphere Image",
+            "id": 1,
+            "nid": "553",
+            "imgUrl": "img/panoimages/bottom_logo.jpg",
+            "imgLowResolutionUrl": "img/imageLowRes1.jpg",
+            "imgMiniatureUrl": "img/panoimages/pano_img12_thumb.jpg",
+            "mobileUrl": "img/imageLowRes1.jpg",
+            "description": "descripcion ambiente 1 nowrap Rindfleischetikettierungsüberwachungsaufgabenübertragungsgesetz",
+            "rotx": 0,
+            "roty": -2,
+            "viewpoints": [
+                {
+                    "name": "Pano 360 Image",
+                    "ambient_target_id": 2,
+                    "x": 10,
+                    "y": 0,
+                    "z": 0
+                }
+            ],
+            "blueprint": [
+                1
+            ]
+        },
+        {
+            "name": "Pano 360 Image",
+            "id": 2,
+            "nid": "554",
+            "imgUrl": "img/panoimages/pano_img14.jpg",
+            "imgLowResolutionUrl": "img/panoimages/pano_img14_lowres.jpg",
+            "imgMiniatureUrl": "img/panoimages/pano_img14_thumb.jpg",
+            "mobileUrl": "img/imageLowRes2.jpg",
+            "description": null,
+            "rotx": 0,
+            "roty": 0,
+            "viewpoints": [
+                {
+                    "name": "Sphere Image",
+                    "ambient_target_id": 1,
+                    "x": -9,
+                    "y": 0,
+                    "z": -2
+                },
+                {
+                    "name": "Pano 180 Image",
+                    "ambient_target_id": 3,
+                    "x": 5,
+                    "y": 0,
+                    "z": -5
+                }
+            ],
+            "blueprint": [
+                1
+            ]
+        },
+        {
+            "name": "Pano 180 Image",
+            "id": 3,
+            "nid": "555",
+            "imgUrl": "img/panoimages/pano_img12.jpg",
+            "imgLowResolutionUrl": "img/panoimages/pano_img12_lowres.jpg",
+            "imgMiniatureUrl": "img/panoimages/pano_img12_thumb.jpg",
+            "mobileUrl": "img/imageLowRes3.jpg",
+            "description": "",
+            "rotx": 0,
+            "roty": 0,
+            "viewpoints": [
+                {
+                    "name": "Pano 360 Image",
+                    "ambient_target_id": 2,
+                    "x": 3,
+                    "y": 0,
+                    "z": -3
+                }
+            ],
+            "blueprint": [
+                2
+            ]
+        },
+        {
+            "name": "Pano 180 Image",
+            "id": 4,
+            "nid": "555",
+            "imgUrl": "img/panoimages/pano_img12.jpg",
+            "imgLowResolutionUrl": "img/panoimages/pano_img12_lowres.jpg",
+            "imgMiniatureUrl": "img/panoimages/pano_img12_thumb.jpg",
+            "mobileUrl": "img/imageLowRes3.jpg",
+            "description": "",
+            "rotx": 0,
+            "roty": 0,
+            "viewpoints": [
+                {
+                    "name": "Pano 360 Image",
+                    "ambient_target_id": 2,
+                    "x": 3,
+                    "y": 0,
+                    "z": -3
+                }
+            ]
+        },
+        {
+            "name": "Pano 180 Image",
+            "id": 5,
+            "nid": "555",
+            "imgUrl": "img/panoimages/pano_img12.jpg",
+            "imgLowResolutionUrl": "img/panoimages/pano_img12_lowres.jpg",
+            "imgMiniatureUrl": "img/panoimages/pano_img12_thumb.jpg",
+            "mobileUrl": "img/imageLowRes3.jpg",
+            "description": "",
+            "rotx": 0,
+            "roty": 0,
+            "viewpoints": [
+                {
+                    "name": "Pano 360 Image",
+                    "ambient_target_id": 2,
+                    "x": 3,
+                    "y": 0,
+                    "z": -3
+                }
+            ],
+            "blueprint": [
+                1,
+                2
+            ]
+        }
+    ],
+    "customization": {
+        "custom_color": "red",
+        "label_color": "red",
+        "custom_loading_splash_logo": "img/dominicana/customLoadingIcon.png",
+        "custom_project_logo": "img/dominicana/Logo_blanco.png",
+        "custom_floor_stamp": "",
+        "custom_window_background_image": "",
+        "about_us_title": "Custom title",
+        "about_us_title_icon": "img/dominicana/Logo_blanco.png",
+        "about_us_subtitle": "custom subtitle",
+        "about_us_span": [
+            "span1",
+            "span2",
+            "span3"
+        ],
+        "about_us_web": "www.google.com.ar",
+        "about_us_email": "info@360magictour.co",
+        "about_us_mobile_icon": "img/dominicana/Logo_blanco.png",
+        "hide_buttons": {
+            "gallery": "",
+            "information": "",
+            "ambient": "",
+            "location": "",
+            "share": "",
+            "gyroscope": "",
+            "fullscreen": "",
+            "vr": "",
+            "about_us": ""
+        }
+    },
+    "blueprint_info": {
+        "scale": {
+            "x": 100,
+            "y": 98
+        },
+        "blueprints": [
+            {
+                "name": "Planta baja",
+                "plant_number": 1,
+                "id": 1,
+                "url_img": "img/blueprints/p_2.png",
+                "points": [
+                    {
+                        "x": 100,
+                        "y": 49,
+                        "target_ambient": 1
+                    },
+                    {
+                        "x": 50,
+                        "y": 49,
+                        "target_ambient": 2
+                    }
+                ]
+            },
+            {
+                "name": "Primer piso",
+                "plant_number": 2,
+                "id": 2,
+                "url_img": "img/blueprints/p_1.png",
+                "points": [
+                    {
+                        "x": 100,
+                        "y": 98,
+                        "target_ambient": 3
+                    },
+                    {
+                        "x": 50,
+                        "y": 49,
+                        "target_ambient": 1
+                    }
+                ]
+            }
+        ]
+    }
+}

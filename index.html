@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html lang="en" ng-app="myApp" class="no-js" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/WebPage">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>360 MagicTour America</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
+    <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/main.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ionicons.min.css">
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
+    <!-- G+ -->
+    <meta itemprop="name" content="[[title]]">
+    <meta itemprop="description" content="[[description]]">
+    <meta itemprop="image" content="[[image]]">
+    <!-- facebook -->
+    <meta property="og:title" content="[[title]]">
+    <meta property="og:description" content="[[description]]">
+    <meta property="og:image" content="[[image]]">
+    <meta property="og:image:secure_url" content="[[image]]">
+    <meta property="og:type" content="website">
+    <!-- Google Analytics PRODUCTION -->
+    <script>
+        /* (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+         ga('create', 'UA-79392885-2', 'auto');        */
+        var ga = null; // Delete this line in production.
+        var urlJson = '[[json | escape("js") ]]';
+    </script>
+</head>
+
+<body ng-controller="guiController as mCtrl" class="iframemode" ng-style="BackgroundPattern()">
+    <!-- GUI definition -->
+    <div id="root-content" class="root-content" ng-class="{'fullscreenmode': isFullscreen}">
+        <div ng-controller="playerController as tCtrl">
+            <div id="noprojectTexture" class="modal-center-image hidden" ng-class="{visible: noProject}"><img src="img/no_project.jpg"></div>
+            <!--		<div id="loadingTexture" ng-class="{fadeOutClass: fade == 'out', fadeInClass:fade == 'in', hidden: hideLoading}"><span us-spinner="{color:'white'}"></span></div>-->
+            <!--		<div class="stopInputScreen" ng-class="{show:fade == 'in', hidden: fade == 'out'}"></div>-->
+            <div id="DisplayCanvas" class="threejs-display"></div>
+			<div id="loadingScreen" class="loadingBar" ng-class="{fadeOutClass: fade == 'out', show:fade == 'in', hidden: hideLoading, fadeColor: fadeBackground, zindex2: finishFirstLoading}">
+				<img class="background-loading" ng-src="{{loadingImgSource}}" ng-class="{'hidden': noProject, 'fadeOutOneSec': showPercentaje}">
+				<div class="loading-container" ng-class="{noAlpha: finishFirstLoading, fadeInClass: fade == 'in', fadeOutClass: fade == 'out'}">
+					<img class="logo-loading" ng-src="{{loadingLogo}}" ng-class="{hidden: noProject || !loadingLogo,fadeOutOneSec: showPercentaje, fadeInClass: fadeInLoadingLogo}"
+						 ng-style="sizeLoadingSplashLogo">
+					<div us-spinner="{color:'white'}" class="middle-spinner" ng-class="{fadeOutOneSec: showPercentaje}"></div>
+				</div>
+			</div>
+
+            <span ng-class="{'hidden': !showProgress || isIOS || isSafari || useLoadingWheel}" class="loading-indicator" ng-style="progressPercentajeStyle">{{progressPercentaje}}</span>
+            <span class="loading-indicator spinner" ng-class="{'hidden': !showProgress}">
+                <span us-spinner="{color:'white', radius:5, width:2, length: 6}" ng-class="{'hidden': !useLoadingWheel}"></span>
+            </span>
+        </div>
+        <div>
+			<div class="top-msg"  ng-class="{fadeInClass: showZoomPopUp , fadeOutClass:!showZoomPopUp}" translate><span>GLOBAL.SCROLL_MSG</span></div>
+			<div class="top-msg"  ng-class="{fadeInClass: showTouchZoomPopUp , fadeOutClass:!showTouchZoomPopUp}" translate><span>GLOBAL.TOUCH_MSG</span></div>
+
+            <div ng-class="{inputNone: noInputGUI}">
+                <div class="title-container" ng-class="{hidden: buttonClicked != '' || isVRActivated}" whithout-info-controlls-class="bottom-left-title-wo"
+                    ng-style="leftCustomStyleTitle">
+                    <div class="title-project-container">
+                        <span class="title-project">{{title}}</span>
+                    </div>
+                    <span class="title-separator"><span>|</span></span>
+                    <div class="subtitle-ambient-container">
+                        <span class="subtitle-ambient">{{ambientName}}</span>
+                    </div>
+                </div>
+
+                <div id="tooltip-text" ng-style="styleToolTip" ng-class="{hidden: toolTipText == ''}">{{toolTipText}}</div>
+
+                <div class="interactive-map" ng-class="{fadeInClass: currentBlueprint && (buttonClicked=='blueprintMobile' || fadeInMap), fadeOutClass: (!fadeInMap && buttonClicked!='blueprintMobile') || !currentBlueprint}">
+                    <img class="interactive-map-img" ng-src="{{currentBlueprint.url_img}}" id="map-image" ng-style="styleImgMap" imageonload="onImgBlueprintLoaded()">
+					<div class="map-point-container" copysizeofimg tocopy="'map-image'" towatch="map-image" padding="0" ng-class="{hidden: loadingImageForBlueprint}">
+                        <img ng-src="{{item.target_ambient == ambientId ? 'img/blueprints/hotspot_current.png' : 'img/blueprints/hotspot_neutral.png'}}"
+                             class="map-point" ng-style="mapPointStyle(item.x,item.y)" ng-repeat="item in currentBlueprint.points"
+                             ng-click="changeAmbientById(item.target_ambient)">
+                    </div>
+                </div>
+                <div class="blueprint-list-container" ng-style="blueprintListStyle" ng-class="{fadeInClass: fadeInMap, fadeOutClass: !fadeInMap || buttonClicked, hidden: blueprints.length < 2 || !blueprints || !currentBlueprint}">
+                    <div class="full-title-blueprint-list">
+                        <div class="blueprint-list-title-container">
+                            <span class="blueprint-list-title" ng-class="{hidden: !currentBlueprint}" >{{currentBlueprint.name}}</span>
+                        </div>
+                        <span class="blueprint-list-title-separator">|</span>
+                        <div class="button-blueprint-list" ng-click="toggleOpenListBlueprints()" ng-class="{hidden: openedBlueprintList}">
+                            <div class="arrow-down"></div>
+                        </div>
+                        <div class="button-blueprint-list" ng-click="toggleOpenListBlueprints()" ng-class="{hidden: !openedBlueprintList}">
+                            <div class="arrow-up"></div>
+                        </div>
+                    </div>
+
+                    <div touchscroll class="blueprint-list scroll-style-1" ng-class="{hidden: !blueprints}" ng-style="blueprintListStyleElements">                            
+
+
+                        <div class="blueprint-list-element-container" ng-class="{hidden: !openedBlueprintList}">
+                            <div class="blueprint-list-element" ng-repeat="item in blueprints | orderBy: 'plant_number'" ng-class="{hidden: currentBlueprint.id == item.id}" ng-mouseover="hoverActive=true" ng-mouseleave="hoverActive=false" ng-style="hoverActive ? {'color':customColorStyle.color} : {}" >
+                                <span ng-click="changeBlueprintById(item.id); toggleOpenListBlueprints()">{{item.name}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+                
+                
+                <div whithout-info-controlls-class="hidden" ng-class="{'hidden': isVRActivated}">
+                    <div class="buton-bar">
+                        <div class="logo-menu" ng-class="{hidden: !hasCustomIcon || hideAboutUsButton}" ng-click="SetClicked('info360')">
+                            <img ng-src="{{buttonClicked == 'info360' ? inconb : incona}}" ng-style="sizeCustomLogo">
+                            <div class="separator-logo-menu"></div>
+                        </div>
+                        <div class="middle-section-button-bar">
+                            <div class="bottom-buton icon icon-icon-info-2 white size-32" ng-style="isClicked('ambient')" ng-class="{hidden: !descriptionAmbient || hideAmbientButton, grayNoBorder: noInputGUI}"
+                                ng-click="SetClicked('ambient')"></div>
+                        </div>
+                        <div class="left-section-button-bar" ng-style="leftCustomStyleMenu">
+                            <div class="bottom-buton" ng-class="{hidden: hasCustomIcon || hideAboutUsButton}" ng-click="SetClicked('info360')"><img ng-src="{{buttonClicked == 'info360' ? inconb : incona}}" height="30px"></div>
+                            <div class="bottom-buton icon icon-icon-gallery white size-32" ng-style="isClicked('gallery')" ng-class="{clicked: buttonClicked == 'gallery', grayNoBorder: noInputGUI, hidden: hideGalleryButton}"
+                                ng-click="SetClicked('gallery')"></div>
+                            <div class="bottom-buton icon icon-icon-info-1 white size-32" ng-style="isClicked('info')" ng-class="{grayNoBorder: noInputGUI || noInfoScreen, hidden: hideInformationButton}"
+                                ng-click="SetClicked('info')"></div>
+                            <div class="bottom-buton icon icon-icon-location white size-32" ng-style="isClicked('location')" ng-class="{grayNoBorder: noInputGUI || !mapActive, hidden: hideLocationButton}"
+                                ng-click="SetClicked('location')"></div>
+                            <div class="bottom-buton icon icon-icon-floorplan white size-32" ng-class="{grayNoBorder: noInputGUI, hidden: !currentBlueprint }"
+                                ng-click="togleMiniMap()" ng-style="buttonBlueprintStyle()"></div>
+							<div class="bottom-buton icon icon-icon-fullscreen white size-32" ng-style="isFullscreenStyle()" ng-class="{hidden: isIOS || hideFullscreenButton, grayNoBorder: noInputGUI }"
+                                ng-click="fullScreenToggle()"></div>
+                            <div class="bottom-buton icon icon-icon-gyroscope white size-32" ng-style="isActiveDeviceOrientationStyle()" ng-class="{hidden: !isMobile || hideGyroscopeButton, grayNoBorder: noInputGUI }"
+                                ng-click="changeViewMode()"></div>
+							
+							<div id="infoMenuButton" class="bottom-buton icon icon-icon-info-1 white size-32" ng-style="isClicked('menupoints')" ng-class="{grayNoBorder: noInputGUI, hidden: hideMenuPointsButton || !menu_points}"
+								 ng-click="SetClicked('menupoints');$event.stopPropagation()"></div>
+
+							
+                            <div class="bottom-buton" ng-class="{hidden: !isMobile || hideVRButton}" ng-click="VRToggle(false); SetClicked('')"><img ng-src="{{noInputGUI ? 'img/mobile-cardboard-disabled.png' : 'img/mobile-cardboard.png'}}"
+                                    width="32px" height="32px"></div>
+							<div class="bottom-buton icon icon-icon-share white size-32" ng-style="isClicked('share')" ng-class="{grayNoBorder: noInputGUI, hidden: hideShareButton || !hasChat}"
+								 ng-click="SetClicked('share')"></div>
+
+                        </div>
+						<div id="right-section-bar" class="right-section-button-bar">
+                            <div class="bottom-buton icon icon-icon-share white size-32" ng-style="isClicked('share')" ng-class="{grayNoBorder: noInputGUI, hidden: hideShareButton || hasChat}"
+                                ng-click="SetClicked('share')"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="only-gallery-fullscreen-controlls" whithout-info-controlls-class="visible" ng-class="{width100px: !currentBlueprint}">
+                    <div class="bottom-buton icon icon-icon-floorplan white size-34" ng-class="{hidden: !currentBlueprint || buttonClicked != '' || isVRActivated || noInputGUI, grayNoBorder: noInputGUI, moveBlueprintMobileButton: descriptionAmbient && !hideAmbientButton}"
+                         ng-click="togleMiniMap()" ng-style="buttonBlueprintStyle()"></div>
+
+                    <div class="bottom-buton icon icon-icon-gallery white size-32" ng-class="{'clicked': buttonClicked == 'gallery', 'grayNoBorder': noInputGUI, 'hidden': noInputGUI}"
+                        ng-click="SetClicked('gallery')"></div>
+                    <div class="bottom-buton icon icon-icon-fullscreen white size-32" ng-class="{'clicked': isFullscreen, 'hidden': noInputGUI, 'grayNoBorder': noInputGUI}"
+                        ng-click="fullScreenToggle()"></div>
+
+                </div>
+                <div class="buton-open-menu-mobile" whithout-info-controlls-class="hidden"><img src="img/butonMenuMobile.png" height="28px" width="39px" ng-click="SetClicked('mobile-menu', $event);$event.stopPropagation()"
+                        ng-class="{hidden: buttonClicked != '' || isVRActivated || noMenuButtons}"></div>
+
+                <div class="bottom-buton-mobile icon icon-icon-info-2 white size-32" whithout-info-controlls-class="hidden" ng-style="isClicked('ambient')"
+                    ng-class="{hidden: !descriptionAmbient || hideAmbientButton || buttonClicked != '' || isVRActivated, grayNoBorder: noInputGUI}"
+                    ng-click="SetClicked('ambient')"></div>
+                
+                <div whithout-info-controlls-class="hidden2" class="bottom-buton-mobile icon icon-icon-floorplan white size-34" ng-class="{hidden: !currentBlueprint || buttonClicked != '' || isVRActivated, grayNoBorder: noInputGUI, moveBlueprintMobileButton: descriptionAmbient && !hideAmbientButton}"
+                     ng-click="togleMiniMap()" ng-style="buttonBlueprintStyle()"></div>
+                
+                <div touchscroll class="menu-mobile scroll-style-2" ng-class="{hidden: buttonClicked != 'mobile-menu'}">
+                    <div class="close-buton" ng-click="SetClicked('',$event);$event.stopPropagation()"><img src="img/close-65px.png" height="32px" width="32px"></div>
+                    <div class="buton-menu-mobile" ng-click="SetClicked('gallery');$event.stopPropagation()" ng-class="{hoverblack: !isMobile, hidden: hideGalleryButton}">
+                        <div class="icon icon-icon-gallery white size-34"><span>GALLERY</span></div>
+                    </div>
+                    <div class="buton-menu-mobile white" ng-class="{hoverblack: !isMobile, inputNone: noInfoScreen, grayNoBorder: noInfoScreen, hidden: hideInformationButton}"
+                        ng-click="SetClicked('info');$event.stopPropagation()">
+                        <div class="icon icon-icon-info-1 size-34"><span>INFORMATION</span></div>
+                    </div>
+                    <!--
+                    <div class="buton-menu-mobile" ng-click="SetClicked('ambient');$event.stopPropagation()" ng-class="{hoverblack: !isMobile, hidden: !descriptionAmbient || hideAmbientButton}">
+                        <div class="icon icon-icon-info-2 white size-34"><span>AMBIENT</span></div>
+                    </div>
+-->
+                    <div class="buton-menu-mobile white" ng-click="SetClicked('location');$event.stopPropagation()" ng-class="{hoverblack: !isMobile, inputNone: !mapActive, grayNoBorder: !mapActive, hidden: hideLocationButton}">
+                        <div class="icon icon-icon-location size-34"><span>LOCATION</span></div>
+                    </div>
+                    <div class="buton-menu-mobile" ng-click="SetClicked('share');$event.stopPropagation()" ng-class="{hoverblack: !isMobile, hidden: hideShareButton}">
+                        <div class="icon icon-icon-share white size-34"><span>SHARE</span></div>
+                    </div>
+					
+					<div class="buton-menu-mobile white" ng-class="{hoverblack: !isMobile, hidden: hideMenuPointsButton || !menu_points}"
+						 ng-click="SetClicked('menupoints');$event.stopPropagation()">
+						<div class="icon icon-icon-info-1 size-34"><span>INFOPOINTS</span></div>
+					</div>
+
+                    
+<!--
+                    <div class="buton-menu-mobile" ng-click="SetClicked('blueprintMobile');$event.stopPropagation();openBlueprintMobile()" ng-class="{hoverblack: !isMobile, hidden: hideShareButton || !currentBlueprint}">
+                        <div class="icon icon-icon-floorplan white size-34"><span>BLUEPRINT</span></div>
+                    </div>
+                    
+-->
+<!--
+                    <div class="buton-menu-mobile" ng-click="togleMiniMap();$event.stopPropagation()" ng-class="{hoverblack: !isMobile, hidden: !currentBlueprint}">
+                        <div class="icon icon-icon-info-2 white size-34" ng-style="buttonBlueprintStyle()"><span>BLUEPRINT</span></div>
+                    </div>
+-->
+                    <div class="buton-menu-mobile white" ng-click="changeViewMode(); $event.stopPropagation()" ng-style="isActiveDeviceOrientationStyle()"
+                        ng-class="{hidden: !isMobile || hideGyroscopeButton}">
+                        <div class="icon icon-icon-gyroscope size-34"><span>GYROSCOPE</span></div>
+                    </div>
+					<div class="buton-menu-mobile hoverblack" ng-click="fullScreenToggle(); SetClicked(''); $event.stopPropagation()" ng-class="{hidden: isIOS || hideFullscreenButton}">
+                        <div class="icon icon-icon-fullscreen white size-34"><span>FULLSCREEN</span></div>
+                    </div>
+                    <div class="buton-menu-mobile" ng-click="VRToggle(false); SetClicked(''); $event.stopPropagation()" ng-class="{hidden: !isMobile || hideVRButton}">
+                        <div><img ng-src="img/mobile-cardboard.png" width="32px" height="32px"><span class="span-mobile-menu-img white">VR</span></div>
+                    </div>
+                    <div class="buton-menu-mobile white" ng-class="{hoverblack: !isMobile, hidden: hideAboutUsButton}" ng-click="SetClicked('info360');$event.stopPropagation()">
+                        <div>
+                            <div class="mobile-menu-img-div">
+                                <img ng-src="{{iconAboutUsMobile}}" ng-style="iconAboutUsMobileSize">
+                            </div>
+                            <span class="mobile-menu-img-span">ABOUT US</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="hidden" ng-class="{'hidden': !isVRActivated}">
+                    <div class="bottomButtonsIcomoon vractivated-toggle-button" ng-click="VRToggle(true)"><i class="icon ion-ios-close-outline white size-40" ng-class="{grayNoBorder: noInputGUI}"></i><span ng-class="{gray: noInputGUI}">Exit VR</span></div>
+                </div>
+
+                <div class="tab" ng-class="{'hidden': buttonClicked != 'info', 'custom': customGui}">
+                    <div class="patter-black-lines"></div>
+                    <div class="close-buton" ng-click="SetClicked('')"><img src="img/close-65px.png" height="32px" width="32px"></div>
+                    <div class="title-tab" ng-style="customColor">
+                        <span>{{title}}</span>
+                    </div>
+                    <div touchscroll class="sub-tab margin-20-minus-1010px">
+                        <div class="limited-width-sub-tab-information scroll-style-1" ng-class="{'custom': customGui}" touchscroll toactive="'gradient-description'"
+                            towatch="buttonClicked" id="description-scroll">
+
+                            <div class="sub-tab-title-icon" ng-class="{hidden: noLocation}">
+                                <div class="icon icon-icon-location white size-28 align-map-icon"></div><span>LOCATION</span></div>
+                            <div class="sub-tab-paragraph nowrap" id="location-data" ng-class="{hidden: noLocation}">
+                                <span class="nowrap inline-block" ng-mouseover="showToolTip($event,street)" ng-mousemove="mouseMovePosition($event)" ng-mouseleave="hideToolTip(street)"
+                                    ng-class="{hidden: !street}">{{street}}</span>
+                                <span class="nowrap inline-block" ng-mouseover="showToolTip($event,street_number)" ng-mousemove="mouseMovePosition($event)"
+                                    ng-mouseleave="hideToolTip(street_number)" ng-class="{hidden: !street_number}">{{street_number}}</span>
+                                <span class="nowrap inline-block" ng-mouseover="showToolTip($event,district)" ng-mousemove="mouseMovePosition($event)" ng-mouseleave="hideToolTip(district)"
+                                    ng-class="{hidden: !district}">{{district}}</span>
+                                <span class="new-line" ng-class="{hidden: !postalcode}"></span>
+                                <span class="inline-block nowrap" ng-class="{hidden: !postalcode}">CP:</span>
+                                <span class="nowrap inline-block" ng-mouseover="showToolTip($event,postalcode)" ng-mousemove="mouseMovePosition($event)"
+                                    ng-mouseleave="hideToolTip(postalcode)" ng-class="{hidden: !postalcode}">{{postalcode}}</span>
+                                <span class="new-line" class="{hidden: !city}"></span>
+                                <span class="nowrap inline-block" ng-mouseover="showToolTip($event,city)" ng-mousemove="mouseMovePosition($event)" ng-mouseleave="hideToolTip(city)"
+                                    ng-class="{hidden: !city}">{{city}}</span>
+                                <span class="nowrap inline-block" ng-mouseover="showToolTip($event,country)" ng-mousemove="mouseMovePosition($event)" ng-mouseleave="hideToolTip(country)"
+                                    ng-class="{hidden: !country}">{{country}}</span>
+                            </div>
+
+                            <p splitlongwords towatch="buttonClicked" tosplit="description" toshow="toShowDescription" fontvalue="'Normal 16px flamaLight'"
+                                ng-class="{margintop0: noLocation, hidden: !description}">{{toShowDescription}}</p>
+                            <div class="blank-space" ng-class="{hidden: noLocation}"></div>
+                            <div class="sub-tab-title-icon" ng-class="{hidden: noContactInfo}">
+                                <div class="icon icon-icon-contact white size-28 align-contact-icon"></div><span>CONTACT</span></div>
+                            <div class="sub-tab-paragraph" ng-class="{hidden: noContactInfo}">
+                                <span class="nowrap uppercase contact-name" ng-mouseover="showToolTip($event,contact_name)" ng-mousemove="mouseMovePosition($event)"
+                                    ng-mouseleave="hideToolTip(contact_name)" ng-class="{hidden: !contact_name}">{{contact_name}}</span>
+                                <span class="nowrap uppercase contact-name" ng-mouseover="showToolTip($event,contact_lastname)" ng-mousemove="mouseMovePosition($event)"
+                                    ng-mouseleave="hideToolTip(contact_lastname)" ng-class="{hidden: !contact_lastname}">{{contact_lastname}}</span>
+                                <span ng-mouseover="showToolTip($event,contact_cel)" ng-mousemove="mouseMovePosition($event)" ng-mouseleave="hideToolTip(contact_cel)"
+                                    class="nowrap" ng-class="{hidden: !contact_cel}">{{contact_cel}}</span>
+                                <span class="nowrap" ng-mouseover="showToolTip($event,contact_tel)" ng-mousemove="mouseMovePosition($event)" ng-mouseleave="hideToolTip(contact_tel)"
+                                    ng-class="{hidden: !contact_tel}">{{contact_tel}}</span>
+                                <span class="span-space" ng-class="{hidden: !contact_email || !contact_website}"></span>
+                                <span class="nowrap" ng-mouseover="showToolTip($event,contact_email)" ng-mousemove="mouseMovePosition($event)" ng-mouseleave="hideToolTip(contact_email)"
+                                    ng-class="{hidden: !contact_email}">{{contact_email}}</span>
+                                <span class="nowrap highlight-clickeable-text" ng-click="openLink(contact_website)" ng-mouseover="showToolTip($event,contact_website)"
+                                    ng-mousemove="mouseMovePosition($event)" ng-mouseleave="hideToolTip(contact_website)" ng-class="{hidden: !contact_website}">{{contact_website}}</span>
+                                <span class="span-space" ng-class="{hidden: !contact_website}"></span>
+                                <span ng-class="{hidden: !contact_company}">Company:</span>
+                                <span class="nowrap" ng-mouseover="showToolTip($event,contact_company)" ng-mousemove="mouseMovePosition($event)" ng-mouseleave="hideToolTip(contact_company)"
+                                    ng-class="{hidden: !contact_company}">{{contact_company}}</span>
+                                <span class="inline-block" ng-class="{hidden: !contact_time}">Location and opening hours:</span>
+                                <span class="nowrap inline-block" ng-mouseover="showToolTip($event,contact_time)" ng-mousemove="mouseMovePosition($event)"
+                                    ng-mouseleave="hideToolTip(contact_time)" ng-class="{hidden: !contact_time}">{{contact_time}}</span>
+
+                            </div>
+
+                        </div>
+                        <div copysizeandoverlap tocopy="'description-scroll'" towatch="buttonClicked" class="gradient-container">
+                            <div id="gradient-description" class="scroll-gradient" ng-class="{'custom': customGui}"></div>
+                        </div>
+                    </div>
+
+                </div>
+                
+<!--
+                <div class="tab nobackground inputNone" ng-class="{hidden: buttonClicked != 'blueprintMobile', 'custom': customGui}">
+                    <div class="close-buton inputAll" ng-click="SetClicked('');closeBlueprint()"><img src="img/close-65px.png" height="32px" width="32px"></div>
+                    <div class="title-tab" ng-style="customColor">
+                        <span>{{title}}</span>
+                    </div>
+                    <span class="ambient-name-blueprint">{{ambientName}}</span>
+                    <div class="button-blueprint-list-mobile icon icon-icon-floorplan white" ng-class="{hidden: blueprints.length < 2 || isLoading }" ng-click="openBlueprintListMobile()"></div>
+                    <div touchscroll class="blueprint-list-mobile scroll-style-none" ng-class="{hidden: !showBlueprintListMobile}">
+
+                        <div class="blueprint-list-element-mobile" ng-repeat="item in blueprints | orderBy: 'plant_number'" ng-click="changeBlueprintById(item.id); closeBlueprintListMobile();$event.stopPropagation()">
+                            <div>
+                                <span>{{item.name}}</span>
+                            </div>
+                        </div>
+                        <div class="left-gray-border"></div>
+
+                    </div>
+                </div>
+-->
+                
+                <div class="tab" ng-class="{hidden: buttonClicked != 'info360', 'custom': customGui}">
+                    <div class="patter-black-lines"></div>
+                    <div class="close-buton" ng-click="SetClicked('')"><img src="img/close-65px.png" height="32px" width="32px"></div>
+                    <div class="title-tab" ng-style="customColor">
+                        <div class="about-us-logo-title">
+                            <img ng-src="{{aboutUsLogo}}" ng-style="sizeCustomLogoAboutUs">
+                        </div>
+                        <span class="span-title-with-img" ng-style="logoTitleAboutUs">{{aboutUsTitle}}</span>
+                    </div>
+                    <div touchscroll class="sub-tab margin-20-minus-1010px scroll-style-1" ng-class="{'custom': customGui}">
+                        <div class="limited-width-sub-tab ">
+                            <div class="sub-tab-title"><span>{{aboutUsSubTitle}}</span></div>
+                            <div class="sub-tab-paragraph">
+                                <span class="margin-bottom10px" ng-repeat="item in aboutUsSpan track by $index">{{item}}</span>
+								<span class="inline-block margin-bottom10px" ng-class="{hidden: !aboutUsWeb}">web:</span> <span class="inline-block margin-bottom10px highlight-clickeable-text"
+                                    ng-click="openLink(aboutUsWeb)">{{aboutUsWeb}}</span>
+                                <span>{{aboutUsEmail}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab overflow-hidden" ng-class="{hidden: buttonClicked != 'gallery', 'custom': customGui}">
+                    <div class="patter-black-lines"></div>
+                    <div class="close-buton" ng-click="SetClicked('')" ng-style="galleryClose"><img src="img/close-65px.png" height="32px" width="32px"></div>
+                    <div class="title-tab height-120px-under800px margin-auto" ng-style="customColor">
+                        <div class="gallery-title" ng-style="galleryTitleStyle">
+                            <span class="gallery-title-span" ng-style="galleryTitleSpanStyle">{{title}}</span>
+                            <span class="subtitle-gallery" ng-style="galleryTitleSpanStyle">{{ambientName}}</span>
+                        </div>
+                    </div>
+                    <div class="sub-tab overflow-hidden margin-15-minus-1000px" whithout-info-controlls-class="height-hundred-perc">
+                        <div touchscroll toactive="'gradient-gallery'" towatch="buttonClicked" class="gallery-scroll scroll-style-1" ng-class="{'custom': customGui}"
+                            id="gallery-scroll">
+                            <div class="gallery-division" ng-style="widthGallery" ng-repeat="item in ambients">
+                                <img ng-src="{{item.imgMiniatureUrl}}" ng-click="clickAmbientMini(item) ; SetClicked('')" ng-style="imgGalleryStyle">
+                                <span class="nowrap" ng-style="spanGalleryStyle">{{item.name}}</span>
+                            </div>
+                        </div>
+                        <div copysizeandoverlap tocopy="'gallery-scroll'" towatch="buttonClicked" class="gradient-container">
+                            <div id="gradient-gallery" class="scroll-gradient"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab" ng-class="{hidden: buttonClicked != 'share', 'custom': customGui}">
+                    <div class="patter-black-lines"></div>
+                    <div class="close-buton" ng-click="SetClicked('')"><img src="img/close-65px.png" height="32px" width="32px"></div>
+                    <div class="title-tab" ng-style="customColor">
+                        <span>{{title}}</span>
+                    </div>
+                    <div touchscroll class="sub-tab margin-20-minus-1010px scroll-style-1" ng-class="{'custom': customGui}">
+                        <a href="#" socialshare socialshare-provider="facebook" socialshare-text="{{title}}" socialshare-hashtags="" socialshare-url={{urlToShare}}
+                            ng-click="shareClicked(facebook)" class="item item-icon-left"><i class="icon ion-social-facebook size-21 padding-left-6" ng-style="customColorStyle" ></i> <span class="span-share">facebook</span></a>
+                        <a href="#" socialshare socialshare-provider="twitter" socialshare-text="{{title}}" socialshare-hashtags="" socialshare-url={{urlToShare}}
+                            ng-click="shareClicked(twitter)" class="item item-icon-left"><i class="icon ion-social-twitter size-21 " ng-style="customColorStyle" ></i> <span class="span-share">twitter</span></a>
+                        <!--						<a href="#" socialshare socialshare-provider="google+" socialshare-text="360MagicPlayer" socialshare-hashtags="angularjs, angular-socialshare" socialshare-url={{urlToShare}} ng-click="shareClicked(google)" class="item item-icon-left"><i class="icon ion-social-googleplus size-21 padding-left-3" ng-style="customColorStyle"></i><span class="span-share">google+</span> </a>-->
+                        <a href="#" class="item item-icon-left" ng-click="mailTo()"><i class="icon icon-icon-email size-24 bold-text email-icon" ng-style="customColorStyle" ></i><span class="span-share">email</span> </a>
+
+                    </div>
+                </div>
+
+                <div class="tab" ng-class="{hidden: buttonClicked != 'location', 'custom': customGui}">
+                    <div class="patter-black-lines"></div>
+                    <div class="close-buton" ng-click="SetClicked('')"><img src="img/close-65px.png" height="32px" width="32px"></div>
+                    <div class="title-tab" ng-style="customColor">
+                        <span>{{title}}</span>
+                    </div>
+                    <div class="sub-tab">
+                        <div id="googlemap" ng-controller="mapController as mapCtrl" ng-if="buttonClicked == 'location'" ng-init="refreshMap()"></div>
+
+                    </div>
+                </div>
+
+                <div class="tab" ng-class="{hidden: buttonClicked != 'ambient', 'custom': customGui}">
+                    <div class="patter-black-lines"></div>
+                    <div class="close-buton" ng-click="SetClicked('')"><img src="img/close-65px.png" height="32px" width="32px"></div>
+                    <div class="title-tab" ng-style="customColor">
+                        <span>{{ambientName}}</span>
+                    </div>
+                    <div class="sub-tab margin-20-minus-1010px">
+                        <div class="limited-width-sub-tab hidden-ellipsis">
+                            <p splitlongwords towatch="buttonClicked" tosplit="descriptionAmbient" toshow="toShowDescriptionAmbient" fontvalue="'Normal 16px flamaLight'">{{toShowDescriptionAmbient}}</p>
+                        </div>
+                    </div>
+                </div>
+				
+				<div id="tab-menu-options" ng-class="{hidden: buttonClicked != 'menupoints', 'custom': customGui}" ng-style="positioningMenuPoints">
+<!--					<div class="close-buton-menu-options" ng-click="SetClicked('')"><img src="img/circulo-cerrar.png" height="56px" width="56px"></div>-->
+					<div class="tab-menu-container scroll-style-1">
+						<span class="menu-info-item" ng-click="OnMenuPoint(item)" ng-repeat="item in menu_points track by $index" ng-mouseover="hoverActiveMenuPoint=true" ng-mouseleave="hoverActiveMenuPoint=false" ng-style="hoverActiveMenuPoint ? {'color':customColorStyle.color} : {}">{{item.title}}</span>
+					</div>
+				</div>
+
+				
+				<div class="iframe-tab" ng-class="{hidden: buttonClicked != 'iframe', 'custom': customGui}">
+					<div class="patter-black-lines"></div>
+					<div class="iframe-close" ng-click="CleanIframe(true)"><img src="img/circulo-cerrar.png" height="56px" width="56px"></div>
+					<div class="iframe-div">
+						<div us-spinner="{color:'white'}" class="iframe-spinner"></div>
+						<iframe class="iframe-sub-tab" ng-src="{{urlIframePoint}}"></iframe>
+
+					</div>
+				</div>
+				
+				<div class="popup-img-only" ng-class="{hidden: popUpMode != 'image' || buttonClicked != 'popUp'}">
+					<div class="popup-img-only-container">
+						<img id="img-only" ng-src="{{popupImg}}" ng-style="styleLimitsPopUp" imageonload="onOnlyImgLoad()">
+						
+						<div class="close-img-only-popup-button-container" copysizeofimg tocopy="'img-only'" towatch="img-only" padding="60">
+							<img class="close-img-only-popup-button" src="img/circulo-cerrar.png" height="56px" width="56px" ng-click="ClosePopUp()" >
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="popup-txt-only" ng-class="{hidden: popUpMode != 'txt' || buttonClicked != 'popUp'}">
+					<div class="to-center-popup-txt-only">
+						<div class="popup-txt-only-container" ng-style="styleLimitsPopUp">
+							<img class="close-txt-only-popup-button" src="img/circulo-cerrar.png" height="56px" width="56px" ng-click="ClosePopUp()">
+							<div class="txt-only-container scroll-style-1" ng-style="styleLimitsInsidePopUp">
+								<span class="popup-txt-title" ng-style="customColorStyle">{{popupTitle}}</span>
+								<span ng-repeat="item in popupInfo track by $index" >{{item}}</span>
+								<span class="popup-link" ng-click="openLink(popupLink)" ng-style="customColorStyle">{{popupLink}}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="popup-imgtxt" ng-class="{hidden: popUpMode != 'imageANDtext' || buttonClicked != 'popUp'}">
+					<div class="to-center-popup">
+						<div class="popup-imgtxt-container" ng-style="styleLimitsPopUpContainer" >
+							<div class="popup-img-container"  ng-class="{heigh100percent: displayPopupMode == 'wide', width100percent: displayPopupMode == 'tall'}">
+								<span class="helper"></span>
+								<img id="img-popup" ng-src="{{popupImg}}" ng-style="imgPopup"  imageonload="onOnlyImgLoad()">
+							</div>
+							<div id="popup-txt-container" class="popup-txt-container scroll-style-1" ng-style="txtPopup">
+								<span class="popup-txt-title" ng-style="customColorStyle">{{popupTitle}}</span>
+								<span ng-repeat="item in popupInfo track by $index" >{{item}}</span>
+								<span class="popup-link" ng-click="openLink(popupLink)" ng-style="customColorStyle">{{popupLink}}</span>
+							</div>
+
+							<img class="close-txt-only-popup-button" src="img/circulo-cerrar.png" height="56px" width="56px" ng-click="ClosePopUp()">
+						</div>
+
+					</div>
+				</div>
+				
+
+
+            </div>
+        </div>
+		
+    </div>
+    <!-- end GUI definition -->
+    <!-- LIBRARY -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiagmRJAPmDwHVdNTsFqyBwOw4hgrSycA" type="text/javascript"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular-route/angular-route.min.js"></script>
+    <script src="bower_components/angular-socialshare/src/js/angular-socialshare.js"></script>
+    <script src="bower_components/spin.js/spin.min.js"></script>
+    <script src="bower_components/angular-spinner/angular-spinner.min.js"></script>
+    <script src="libs/jquery-1.11.3.min.js"></script>
+    <script src="libs/angular-touch.js"></script>
+    <script src="libs/BigScreen.min.js"></script>
+    <script src="libs/threejs/three.min.js"></script>
+    <script src="libs/threejs/DeviceOrientationControls.js"></script>
+    <script src="libs/threejs/stereo_effect.js"></script>
+    <script src="libs/detect-zoom.js"></script>
+    <!-- APP -->
+    <script src="app.js"></script>
+    <!-- TRHEEJS MODULE -->
+    <script src="modules/threejs_module/threejs_module.js"></script>
+    <script src="modules/threejs_module/services/threejs_module.services.threejs_service.js"></script>
+    <script src="modules/threejs_module/services/threejs_module.services.threejs_mouserotation_service.js"></script>
+    <script src="modules/threejs_module/services/threejs_module.services.labels_service.js"></script>
+    <!-- ANALYTICS MODULE -->
+    <script src="modules/analytics_module/analytics_module.js"></script>
+    <script src="modules/analytics_module/services/analytics_module.services.analytics_service.js"></script>
+    <!-- CUSTOMIZATION MODULE -->
+    <script src="modules/customization_module/customization_module.js"></script>
+    <script src="modules/customization_module/services/customization_module.services.customization_service.js"></script>
+    <script src="modules/customization_module/directives/customization_module.directives.custom_class.js"></script>
+    <!-- MAIN MODULE -->
+    <script src="modules/main_module/main_module.js"></script>
+    <script src="modules/main_module/services/main_module.services.base64.js"></script>
+    <script src="modules/main_module/services/main_module.services.change_to_ambient_service.js"></script>
+    <script src="modules/main_module/services/main_module.services.change_view_service.js"></script>
+    <script src="modules/main_module/services/main_module.services.inform_status_of_loading_screen.js"></script>
+	
+	<script src="modules/main_module/services/main_module.services.call_on_popup.js"></script>
+	<script src="modules/main_module/services/main_module.services.call_on_iframepoint.js"></script>
+
+
+    <script src="modules/main_module/services/main_module.services.handle_input_gui.js"></script>
+    <script src="modules/main_module/services/main_module.services.image_resizer_service.js"></script>
+    <script src="modules/main_module/services/main_module.services.info_service.js"></script>
+    <script src="modules/main_module/directives/main_module.directives.splitlongwords.js"></script>
+    <script src="modules/main_module/directives/main_module.directives.touchscroll.js"></script>
+    <script src="modules/main_module/directives/main_module.directives.copysizeandoverlap.js"></script>
+    <script src="modules/main_module/directives/main_module.directives.copysizeofimg.js"></script>
+    <script src="modules/main_module/directives/main_module.directives.imageonload.js"></script>
+
+    <script src="modules/main_module/controllers/main_module.controllers.gui_controller.js"></script>
+    <script src="modules/main_module/controllers/main_module.controllers.player_controller.js"></script>
+    <script src="modules/main_module/controllers/main_module.controllers.map_controller.js"></script>
+    <script src="modules/main_module/services/main_module.services.geolocation_service.js"></script>
+	<!-- TRANSLATE -->
+	<script src="libs/angular-translate/angular-translate.min.js"></script>
+	<script src="libs/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
+
+    
+</body>
+
+</html>
