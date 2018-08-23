@@ -41,21 +41,24 @@ THREE.DeviceOrientationControls = function(object) {
     this.connect = function() {
         onScreenOrientationChangeEvent(); // run once on load
 
-        window.addEventListener(
-            "orientationchange",
-            onScreenOrientationChangeEvent,
-            true
-        );
-        window.addEventListener(
-            "deviceorientation",
-            onDeviceOrientationChangeEvent,
-            true
-        );
+//        window.addEventListener(
+//            "orientationchange",
+//            onScreenOrientationChangeEvent,
+//            true
+//        );
+//        window.addEventListener(
+//            "deviceorientation",
+//            onDeviceOrientationChangeEvent,
+//            true
+//        );
 
         scope.enabled = true;
 
         window.addEventListener("message", function(event) {
-            if (event.data.orientation) console.log(event.data.orientation);
+            if (event.data.orientation) {
+                console.log(event.data.orientation);
+                onScreenOrientationChangeEvent(event.data);
+            }
 
             if (event.data.alpha !== undefined) {
                 onDeviceOrientationChangeEvent(event.data);
