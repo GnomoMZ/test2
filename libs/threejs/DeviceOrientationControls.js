@@ -40,7 +40,7 @@ THREE.DeviceOrientationControls = function(object) {
 
     this.connect = function() {
         onScreenOrientationChangeEvent(); // run once on load
-        console.log("ACAAAAA");
+        console.log("ACAperere");
         window.addEventListener(
             "orientationchange",
             onScreenOrientationChangeEvent,
@@ -54,12 +54,27 @@ THREE.DeviceOrientationControls = function(object) {
 
         scope.enabled = true;
 
-        window.addEventListener("message", receiveMessage, false);
-        function receiveMessage(event) {
-            console.debug(event.data);
-            console.debug(event);
+        setTimeout(function() {
+            console.log("ACAAAA2A");
 
-        }
+            window.addEventListener("message", function(event) {
+                console.log(event.data);
+                console.log(event);
+            });
+        }, 5000);
+
+        window.addEventListener("message", function(event) {
+            console.log(event.data);
+            console.log(event);
+        });
+
+        //        window.addEventListener("message", receiveMessage, false);
+        //        function receiveMessage(event) {
+        //            console.log("receibed");
+        //            console.log(event.data);
+        //            console.log(event);
+        //
+        //        }
     };
 
     this.disconnect = function() {
