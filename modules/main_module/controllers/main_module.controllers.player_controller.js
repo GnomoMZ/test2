@@ -120,7 +120,6 @@ angular.module("mainModule").controller("playerController", [
       
         setTimeout(function() {
             console.log("ACAAAA23");
-            test();
             window.addEventListener("message", function(event) {
                 console.log(event.data);
             });
